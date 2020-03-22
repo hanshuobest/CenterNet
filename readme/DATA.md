@@ -18,10 +18,9 @@ If you want to reproduce the results in the paper for benchmark evaluation and t
           |   |-- person_keypoints_train2017.json
           |   |-- person_keypoints_val2017.json
           |   |-- image_info_test-dev2017.json
-          `-- images
-              |-- train2017
-              |-- val2017
-              |-- test2017
+          |---|-- train2017
+          |---|-- val2017
+          `---|-- test2017
   ~~~
 
 - [Optional] If you want to train ExtremeNet, generate extreme point annotation from segmentation:
@@ -38,7 +37,7 @@ If you want to reproduce the results in the paper for benchmark evaluation and t
 
     ~~~
     cd $CenterNet_ROOT/tools/
-    bash download_pascal_voc.sh
+    bash get_pascal_voc.sh
     ~~~
 - The above script includes:
     - Download, unzip, and move Pascal VOC images from the [VOC website](http://host.robots.ox.ac.uk/pascal/VOC/). 

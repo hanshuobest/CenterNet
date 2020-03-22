@@ -8,7 +8,11 @@ from progress.bar import Bar
 import time
 import torch
 
-from external.nms import soft_nms
+try:
+  from external.nms import soft_nms
+except:
+  print('NMS not imported! If you need it,'
+        ' do \n cd $CenterNet_ROOT/src/lib/external \n make')
 from models.decode import ctdet_decode
 from models.utils import flip_tensor
 from utils.image import get_affine_transform
@@ -33,7 +37,7 @@ class CtdetDetector(BaseDetector):
         reg = reg[0:1] if reg is not None else None
       torch.cuda.synchronize()
       forward_time = time.time()
-      dets = ctdet_decode(hm, wh, reg=reg, K=self.opt.K)
+      dets = ctdet_decode(hm, wh, reg=reg, cat_spec_wh=self.opt.cat_spec_wh, K=self.opt.K)
       
     if return_time:
       return output, dets, forward_time
