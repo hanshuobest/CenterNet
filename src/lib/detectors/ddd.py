@@ -103,4 +103,5 @@ class DddDetector(BaseDetector):
       center_thresh=self.opt.vis_thresh, img_id='add_pred')
     debugger.add_bird_view(
       results, center_thresh=self.opt.vis_thresh, img_id='bird_pred')
-    debugger.show_all_imgs(pause=self.pause)
+    # debugger.show_all_imgs(pause=self.pause)
+    debugger.save_all_imgs(path='/home/han/git_project/detection/CenterNet/output_result', genID=True)
