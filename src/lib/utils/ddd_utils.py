@@ -26,6 +26,7 @@ def project_to_image(pts_3d, P):
   # pts_3d: n x 3
   # P: 3 x 4
   # return: n x 2
+  # pts_3d_homo n x 4
   pts_3d_homo = np.concatenate(
     [pts_3d, np.ones((pts_3d.shape[0], 1), dtype=np.float32)], axis=1)
   pts_2d = np.dot(P, pts_3d_homo.transpose(1, 0)).transpose(1, 0)

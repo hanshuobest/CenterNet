@@ -63,8 +63,10 @@ cat_info = []
 for i, cat in enumerate(cats):
   cat_info.append({'name': cat, 'id': i + 1})
 
+# ['3dop', 'subcnn'] 
 for SPLIT in SPLITS:
   image_set_path = DATA_PATH + 'ImageSets_{}/'.format(SPLIT)
+  print(f"image_set_path---: {image_set_path}")
   ann_dir = DATA_PATH + 'training/label_2/'
   calib_dir = DATA_PATH + '{}/calib/'
   splits = ['train', 'val']
@@ -124,6 +126,8 @@ for SPLIT in SPLITS:
           box_3d = compute_box_3d(dim, location, rotation_y)
           box_2d = project_to_image(box_3d, calib)
           # print('box_2d', box_2d)
+
+          print('box_2d shape: ' , box_2d.shape)
           image = draw_box_3d(image, box_2d)
           x = (bbox[0] + bbox[2]) / 2
           '''
@@ -139,14 +143,25 @@ for SPLIT in SPLITS:
           pt_3d[1] += dim[0] / 2
           print('pt_3d', pt_3d)
           print('location', location)
-      if DEBUG:
+      if DEBUG: 
         cv2.imshow('image', image)
-        cv2.waitKey()
+        key = cv2.waitKey(0)
+        if key == ord('q') & 0xff:
+          break
 
 
     print("# images: ", len(ret['images']))
     print("# annotations: ", len(ret['annotations']))
     # import pdb; pdb.set_trace()
-    out_path = '{}/annotations/kitti_{}_{}.json'.format(DATA_PATH, SPLIT, split)
-    json.dump(ret, open(out_path, 'w'))
+    # out_path = '{}annotations/kitti_{}_{}.json'.format(DATA_PATH, SPLIT, split)
+
+    out_path = '{}annotations'.format(DATA_PATH)
+    print('out_path: ' , out_path)
+    if os.path.exists(out_path):
+      pass
+    else:
+      os.mkdir(out_path)
+
+    out_path = '{}annotations/kitti_{}_{}.json'.format(DATA_PATH, SPLIT, split)
+    json.dump(ret, open(out_path, 'w') , indent=2 , ensure_ascii=False)
   

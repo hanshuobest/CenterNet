@@ -16,12 +16,15 @@ from utils.image import gaussian_radius, draw_umich_gaussian, draw_msra_gaussian
 import pycocotools.coco as coco
 
 class DddDataset(data.Dataset):
+  # box[2]:width
+  # box[3]:height
   def _coco_box_to_bbox(self, box):
     bbox = np.array([box[0], box[1], box[0] + box[2], box[1] + box[3]],
                     dtype=np.float32)
     return bbox
 
   def _convert_alpha(self, alpha):
+    # 角度转为弧度
     return math.radians(alpha + 45) if self.alpha_in_degree else alpha
 
   def __getitem__(self, index):

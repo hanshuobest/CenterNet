@@ -47,6 +47,7 @@ def demo(opt):
     
     for (image_name) in image_names:
       ret = detector.run(image_name)
+
       print(f'ret: {ret}')
       print(f"type of ret: " , type(ret))
       time_str = ''
