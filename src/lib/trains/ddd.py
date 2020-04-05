@@ -16,8 +16,10 @@ from .base_trainer import BaseTrainer
 class DddLoss(torch.nn.Module):
   def __init__(self, opt):
     super(DddLoss, self).__init__()
+    # 定义损失函数
     self.crit = torch.nn.MSELoss() if opt.mse_loss else FocalLoss()
     self.crit_reg = L1Loss()
+    # 混合连续-离散损失：multiBin损失
     self.crit_rot = BinRotLoss()
     self.opt = opt
   

@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 from .utils import _gather_feat, _transpose_and_gather_feat
 
+# 筛选出极大值点，极大值点处为原值，其余为0
 def _nms(heat, kernel=3):
     pad = (kernel - 1) // 2
 
@@ -102,7 +103,9 @@ def _topk_channel(scores, K=40):
 
 def _topk(scores, K=40):
     batch, cat, height, width = scores.size()
-      
+    
+    # topk_scores: batch * cat * k
+    # topk_inds  : index取值：[0 , w x h - 1]
     topk_scores, topk_inds = torch.topk(scores.view(batch, cat, -1), K)
 
     topk_inds = topk_inds % (height * width)
@@ -111,11 +114,12 @@ def _topk(scores, K=40):
       
     topk_score, topk_ind = torch.topk(topk_scores.view(batch, -1), K)
     topk_clses = (topk_ind / K).int()
-    topk_inds = _gather_feat(
-        topk_inds.view(batch, -1, 1), topk_ind).view(batch, K)
+    topk_inds = _gather_feat(topk_inds.view(batch, -1, 1), topk_ind).view(batch, K)
     topk_ys = _gather_feat(topk_ys.view(batch, -1, 1), topk_ind).view(batch, K)
     topk_xs = _gather_feat(topk_xs.view(batch, -1, 1), topk_ind).view(batch, K)
 
+    # topk_score: batch * k 每张图片中的最大的k个值
+    # topk_index: batch * k 每张图中最大的k个值对应的index
     return topk_score, topk_inds, topk_clses, topk_ys, topk_xs
 
 
