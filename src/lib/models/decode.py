@@ -468,12 +468,23 @@ def ddd_decode(heat, rot, depth, dim, wh=None, reg=None, K=40):
 def ctdet_decode(heat, wh, reg=None, cat_spec_wh=False, K=100):
     batch, cat, height, width = heat.size()
 
+    # reg shape: batch x 2 x 128 x 128
+
     # heat = torch.sigmoid(heat)
     # perform nms on heatmaps
+
+    # heat shape: batch x cls x 128 x 128
     heat = _nms(heat)
-      
+    
+    # scores shape: batchsize x k
+    # inds shape:   batchsize x k
+    # clses shape:  batchsize x k
+    # ys shape:     batchsize x k
+    # xs shape:     batchsize x k
     scores, inds, clses, ys, xs = _topk(heat, K=K)
+    
     if reg is not None:
+      # reg shape: batch x K x 2
       reg = _transpose_and_gather_feat(reg, inds)
       reg = reg.view(batch, K, 2)
       xs = xs.view(batch, K, 1) + reg[:, :, 0:1]
@@ -481,6 +492,7 @@ def ctdet_decode(heat, wh, reg=None, cat_spec_wh=False, K=100):
     else:
       xs = xs.view(batch, K, 1) + 0.5
       ys = ys.view(batch, K, 1) + 0.5
+    # wh shape: batch x K x 2
     wh = _transpose_and_gather_feat(wh, inds)
     if cat_spec_wh:
       wh = wh.view(batch, K, cat, 2)
@@ -488,12 +500,19 @@ def ctdet_decode(heat, wh, reg=None, cat_spec_wh=False, K=100):
       wh = wh.gather(2, clses_ind).view(batch, K, 2)
     else:
       wh = wh.view(batch, K, 2)
+
+    # clses shape:  batchsize x K x 1
+    # scores shape: batchsize x K x 1
+    # bboxes shape: batchsize x K x 4  
     clses  = clses.view(batch, K, 1).float()
     scores = scores.view(batch, K, 1)
     bboxes = torch.cat([xs - wh[..., 0:1] / 2, 
                         ys - wh[..., 1:2] / 2,
                         xs + wh[..., 0:1] / 2, 
                         ys + wh[..., 1:2] / 2], dim=2)
+
+    # detections shape: batchsize x K x 6
+    # [xmin ymin xmax ymax scores clses]
     detections = torch.cat([bboxes, scores, clses], dim=2)
       
     return detections

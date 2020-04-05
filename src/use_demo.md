@@ -1,6 +1,5 @@
 #### 检测
-python demo.py ctdet --demo webcam --load_model ../models/ctdet_coco_dla_2x.pth
-
+python3 demo.py ctdet --demo ../images/19064748793_bb942deea1_k.jpg --load_model ../models/ctdet_coco_dla_2x.pth
 ---
 
 #### 检测3d box

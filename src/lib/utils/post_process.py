@@ -81,15 +81,17 @@ def ddd_post_process(dets, c, s, calibs, opt):
 
 
 def ctdet_post_process(dets, c, s, h, w, num_classes):
-  # dets: batch x max_dets x dim
-  # return 1-based class det dict
+  # dets shape: batchsize x K x 6
   ret = []
   for i in range(dets.shape[0]):
     top_preds = {}
+    # xmin , ymin
     dets[i, :, :2] = transform_preds(
           dets[i, :, 0:2], c[i], s[i], (w, h))
+    # xmax , ymax
     dets[i, :, 2:4] = transform_preds(
           dets[i, :, 2:4], c[i], s[i], (w, h))
+    # classes shape: K x 1
     classes = dets[i, :, -1]
     for j in range(num_classes):
       inds = (classes == j)

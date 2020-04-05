@@ -9,10 +9,10 @@ def _sigmoid(x):
   y = torch.clamp(x.sigmoid_(), min=1e-4, max=1-1e-4)
   return y
 
-# feat: batch * (cat x k) * 1
-# ind : batch * k
 def _gather_feat(feat, ind, mask=None):
     dim  = feat.size(2)
+
+    # ind shape: batchsize x K x dim
     ind  = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim)
     feat = feat.gather(1, ind)
     if mask is not None:
@@ -23,9 +23,13 @@ def _gather_feat(feat, ind, mask=None):
     # 返回的是index: batch * k * 1
     return feat
 
+# feat: batchsize x 2 x 128 x 128
+# ind:  batchsize x k
 def _transpose_and_gather_feat(feat, ind):
     feat = feat.permute(0, 2, 3, 1).contiguous()
     feat = feat.view(feat.size(0), -1, feat.size(3))
+    # feat: batchsize x (-1) x 2
+    # ind:  batchsize x k
     feat = _gather_feat(feat, ind)
     return feat
 

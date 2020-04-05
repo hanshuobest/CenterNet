@@ -27,16 +27,20 @@ class CtdetDetector(BaseDetector):
   
   def process(self, images, return_time=False):
     with torch.no_grad():
+      # feature map 
       output = self.model(images)[-1]
       hm = output['hm'].sigmoid_()
       wh = output['wh']
       reg = output['reg'] if self.opt.reg_offset else None
+      
       if self.opt.flip_test:
         hm = (hm[0:1] + flip_tensor(hm[1:2])) / 2
         wh = (wh[0:1] + flip_tensor(wh[1:2])) / 2
         reg = reg[0:1] if reg is not None else None
       torch.cuda.synchronize()
       forward_time = time.time()
+
+      # dets shape: batchsize x K x 6
       dets = ctdet_decode(hm, wh, reg=reg, cat_spec_wh=self.opt.cat_spec_wh, K=self.opt.K)
       
     if return_time:
@@ -46,10 +50,15 @@ class CtdetDetector(BaseDetector):
 
   def post_process(self, dets, meta, scale=1):
     dets = dets.detach().cpu().numpy()
+
+    # dets shape: batchsize x (K) x 6
     dets = dets.reshape(1, -1, dets.shape[2])
     dets = ctdet_post_process(
         dets.copy(), [meta['c']], [meta['s']],
         meta['out_height'], meta['out_width'], self.opt.num_classes)
+    
+    # dets 字典[{1:[],2:[]},{1:[],2:[]}]
+
     for j in range(1, self.num_classes + 1):
       dets[0][j] = np.array(dets[0][j], dtype=np.float32).reshape(-1, 5)
       dets[0][j][:, :4] /= scale
