@@ -462,7 +462,15 @@ def ddd_decode(heat, rot, depth, dim, wh=None, reg=None, K=40):
     else:
         detections = torch.cat(
             [xs, ys, scores, rot, depth, dim, clses], dim=2)
-      
+
+    # detections shape: batchsize x K x 18
+    # detections[: , : 0:2]: xs , ys
+    # detections[: , : 2:3]: scores
+    # detections[: , : 3:11]: rot
+    # detections[: , : 11:12]: depth
+    # detections[: , : 12:15]: dim
+    # detections[: , : 15:17]: w,h
+    # detections[: , : 17:18]: clses
     return detections
 
 def ctdet_decode(heat, wh, reg=None, cat_spec_wh=False, K=100):

@@ -14,19 +14,20 @@ def get_alpha(rot):
   # output: (B, 8) [bin1_cls[0], bin1_cls[1], bin1_sin, bin1_cos, 
   #                 bin2_cls[0], bin2_cls[1], bin2_sin, bin2_cos]
   # return rot[:, 0]
+  # rot shape: B x 8
+  
   idx = rot[:, 1] > rot[:, 5]
   alpha1 = np.arctan2(rot[:, 2], rot[:, 3]) + (-0.5 * np.pi)
   alpha2 = np.arctan2(rot[:, 6], rot[:, 7]) + ( 0.5 * np.pi)
   return alpha1 * idx + alpha2 * (1 - idx)
   
-
+# 返回一个列表，列表元素为一个字典，字典的每个键对应的值shape: B x 10
 def ddd_post_process_2d(dets, c, s, opt):
-  # dets: batch x max_dets x dim
-  # return 1-based class det list
   ret = []
   include_wh = dets.shape[2] > 16
   for i in range(dets.shape[0]):
     top_preds = {}
+    
     dets[i, :, :2] = transform_preds(
           dets[i, :, 0:2], c[i], s[i], (opt.output_w, opt.output_h))
     classes = dets[i, :, -1]
@@ -43,12 +44,11 @@ def ddd_post_process_2d(dets, c, s, opt):
           transform_preds(
             dets[i, inds, 15:17], c[i], s[i], (opt.output_w, opt.output_h))
           .astype(np.float32)], axis=1)
+    
     ret.append(top_preds)
   return ret
 
 def ddd_post_process_3d(dets, calibs):
-  # dets: batch x max_dets x dim
-  # return 1-based class det list
   ret = []
   for i in range(len(dets)):
     preds = {}
@@ -73,8 +73,13 @@ def ddd_post_process_3d(dets, calibs):
   return ret
 
 def ddd_post_process(dets, c, s, calibs, opt):
-  # dets: batch x max_dets x dim
-  # return 1-based class det list
+  # detections shape: batchsize x K x 16
+  # detections[: , : 0:2]: xs , ys
+  # detections[: , : 2:3]: scores
+  # detections[: , : 3:11]: rot
+  # detections[: , : 11:12]: depth
+  # detections[: , : 12:15]: dim
+  # detections[: , : 15:16]: clses
   dets = ddd_post_process_2d(dets, c, s, opt)
   dets = ddd_post_process_3d(dets, calibs)
   return dets

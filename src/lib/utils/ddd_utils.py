@@ -130,3 +130,4 @@ if __name__ == '__main__':
   rotation_y = 0.01
   print('alpha2rot_y', alpha2rot_y(alpha, ct[0], calib[0, 2], calib[0, 0]))
   print('rotation_y', rotation_y)
+  print('alpha' , rot_y2alpha(alpha2rot_y(alpha, ct[0], calib[0, 2], calib[0, 0]) , ct[0], calib[0, 2], calib[0, 0]))

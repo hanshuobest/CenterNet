@@ -48,6 +48,9 @@ class DddDetector(BaseDetector):
     calib = np.array(calib, dtype=np.float32) if calib is not None \
             else self.calib
     images = torch.from_numpy(images)
+
+    # c: 原图中心坐标
+    # s: 原图尺寸
     meta = {'c': c, 's': s, 
             'out_height': inp_height // self.opt.down_ratio, 
             'out_width': inp_width // self.opt.down_ratio,
@@ -57,14 +60,21 @@ class DddDetector(BaseDetector):
   def process(self, images, return_time=False):
     with torch.no_grad():
       torch.cuda.synchronize()
+
       output = self.model(images)[-1]
+      
+      # heatmap shape: batchsize x 3 x 96 x 320
       output['hm'] = output['hm'].sigmoid_()
+      # dep shape: batchsize x 1 x 96 x 320
       output['dep'] = 1. / (output['dep'].sigmoid() + 1e-6) - 1.
+
       wh = output['wh'] if self.opt.reg_bbox else None
       reg = output['reg'] if self.opt.reg_offset else None
       torch.cuda.synchronize()
       forward_time = time.time()
-      
+
+      # rot shape: batchsize x 8 x 96 x 320
+      # dim shape: batchsize x 3 x 96 x 320
       dets = ddd_decode(output['hm'], output['rot'], output['dep'],
                           output['dim'], wh=wh, reg=reg, K=self.opt.K)
     if return_time:
@@ -73,6 +83,14 @@ class DddDetector(BaseDetector):
       return output, dets
 
   def post_process(self, dets, meta, scale=1):
+    # detections shape: batchsize x K x 16
+    # detections[: , : 0:2]: xs , ys
+    # detections[: , : 2:3]: scores
+    # detections[: , : 3:11]: rot
+    # detections[: , : 11:12]: depth
+    # detections[: , : 12:15]: dim
+    # detections[: , : 15:16]: clses 
+
     dets = dets.detach().cpu().numpy()
     detections = ddd_post_process(
       dets.copy(), [meta['c']], [meta['s']], [meta['calib']], self.opt)
