@@ -28,6 +28,8 @@ class DddLoss(torch.nn.Module):
 
     hm_loss, dep_loss, rot_loss, dim_loss = 0, 0, 0, 0
     wh_loss, off_loss = 0, 0
+
+    # opt.num_stacks = 2 if opt.arch == 'hourglass' else 1
     for s in range(opt.num_stacks):
       output = outputs[s]
       output['hm'] = _sigmoid(output['hm'])

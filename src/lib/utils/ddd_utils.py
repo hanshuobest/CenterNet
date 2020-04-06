@@ -89,6 +89,7 @@ def alpha2rot_y(alpha, x, cx, fx):
       rot_y += 2 * np.pi
     return rot_y
 
+# 参考 https://img-blog.csdnimg.cn/20181204101648283.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2N1aWNodWFuY2hlbjMzMDc=,size_16,color_FFFFFF,t_70
 def rot_y2alpha(rot_y, x, cx, fx):
     """
     Get rotation_y by alpha + theta - 180
