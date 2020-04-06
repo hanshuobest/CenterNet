@@ -22,6 +22,7 @@ from .base_detector import BaseDetector
 class DddDetector(BaseDetector):
   def __init__(self, opt):
     super(DddDetector, self).__init__(opt)
+    # 3 x 4
     self.calib = np.array([[707.0493, 0, 604.0814, 45.75831],
                            [0, 707.0493, 180.5066, -0.3454157],
                            [0, 0, 1., 0.004981016]], dtype=np.float32)
@@ -75,6 +76,7 @@ class DddDetector(BaseDetector):
 
       # rot shape: batchsize x 8 x 96 x 320
       # dim shape: batchsize x 3 x 96 x 320
+      # dets shape: batchsize x K x 18
       dets = ddd_decode(output['hm'], output['rot'], output['dep'],
                           output['dim'], wh=wh, reg=reg, K=self.opt.K)
     if return_time:
@@ -83,13 +85,14 @@ class DddDetector(BaseDetector):
       return output, dets
 
   def post_process(self, dets, meta, scale=1):
-    # detections shape: batchsize x K x 16
-    # detections[: , : 0:2]: xs , ys
-    # detections[: , : 2:3]: scores
-    # detections[: , : 3:11]: rot
-    # detections[: , : 11:12]: depth
-    # detections[: , : 12:15]: dim
-    # detections[: , : 15:16]: clses 
+    # dets shape: batchsize x K x 18
+    # dets[: , : 0:2]: xs , ys
+    # dets[: , : 2:3]: scores
+    # dets[: , : 3:11]: rot
+    # dets[: , : 11:12]: depth
+    # dets[: , : 12:15]: dim
+    # dets[: , : 15:17]: w,h
+    # dets[: , : 17:18]: clses
 
     dets = dets.detach().cpu().numpy()
     detections = ddd_post_process(
@@ -98,10 +101,13 @@ class DddDetector(BaseDetector):
     return detections[0]
 
   def merge_outputs(self, detections):
+    
+    # results 是一个以类别为键的字典 ， 键值的shape： B x 13
     results = detections[0]
     for j in range(1, self.num_classes + 1):
       if len(results[j] > 0):
         keep_inds = (results[j][:, -1] > self.opt.peak_thresh)
+
         results[j] = results[j][keep_inds]
     return results
 
@@ -116,6 +122,10 @@ class DddDetector(BaseDetector):
       center_thresh=self.opt.vis_thresh, img_id='det_pred')
   
   def show_results(self, debugger, image, results):
+    '''
+    results: dict class
+    '''
+    
     debugger.add_3d_detection(
       image, results, self.this_calib,
       center_thresh=self.opt.vis_thresh, img_id='add_pred')

@@ -16,6 +16,7 @@ import random
 def flip(img):
   return img[:, :, ::-1].copy()  
 
+# coords shape: K x 2
 def transform_preds(coords, center, scale, output_size):
     target_coords = np.zeros(coords.shape)
     trans = get_affine_transform(center, scale, 0, output_size, inv=1)
@@ -23,13 +24,15 @@ def transform_preds(coords, center, scale, output_size):
         target_coords[p, 0:2] = affine_transform(coords[p, 0:2], trans)
     return target_coords
 
-
 def get_affine_transform(center,
                          scale,
                          rot,
                          output_size,
                          shift=np.array([0, 0], dtype=np.float32),
                          inv=0):
+    '''
+    获取仿射变换矩阵
+    '''
     if not isinstance(scale, np.ndarray) and not isinstance(scale, list):
         scale = np.array([scale, scale], dtype=np.float32)
 
@@ -61,6 +64,9 @@ def get_affine_transform(center,
 
 
 def affine_transform(pt, t):
+    '''
+    执行仿射变换
+    '''
     new_pt = np.array([pt[0], pt[1], 1.], dtype=np.float32).T
     new_pt = np.dot(t, new_pt)
     return new_pt[:2]
@@ -72,6 +78,11 @@ def get_3rd_point(a, b):
 
 
 def get_dir(src_point, rot_rad):
+    '''
+    src_point: 待旋转点
+    rot_rad  : 旋转角度
+    return   : 返回旋转点坐标
+    '''
     sn, cs = np.sin(rot_rad), np.cos(rot_rad)
 
     src_result = [0, 0]

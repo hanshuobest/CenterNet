@@ -6,17 +6,22 @@ import numpy as np
 import cv2
 
 def compute_box_3d(dim, location, rotation_y):
+  # brief: 计算3dbox的八个点坐标
   # dim: 3
   # location: 3
-  # rotation_y: 1
+  # rotation_y: 绕y轴旋转角度
   # return: 8 x 3
   c, s = np.cos(rotation_y), np.sin(rotation_y)
+  # 绕y轴旋转产生的旋转矩阵
   R = np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]], dtype=np.float32)
   l, w, h = dim[2], dim[1], dim[0]
+
+  # 3D box的八个顶点坐标
   x_corners = [l/2, l/2, -l/2, -l/2, l/2, l/2, -l/2, -l/2]
   y_corners = [0,0,0,0,-h,-h,-h,-h]
   z_corners = [w/2, -w/2, -w/2, w/2, w/2, -w/2, -w/2, w/2]
 
+  # corners shape: 3 x 8
   corners = np.array([x_corners, y_corners, z_corners], dtype=np.float32)
   corners_3d = np.dot(R, corners) 
   corners_3d = corners_3d + np.array(location, dtype=np.float32).reshape(3, 1)
