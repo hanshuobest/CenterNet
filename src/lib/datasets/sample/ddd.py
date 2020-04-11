@@ -24,7 +24,7 @@ class DddDataset(data.Dataset):
     return bbox
 
   def _convert_alpha(self, alpha):
-    # 角度转为弧度
+    # 角度转为弧度，为什么加上45？
     return math.radians(alpha + 45) if self.alpha_in_degree else alpha
 
   def __getitem__(self, index):
@@ -68,6 +68,7 @@ class DddDataset(data.Dataset):
     trans_output = get_affine_transform(
       c, s, 0, [self.opt.output_w, self.opt.output_h])
 
+    # 定义heatmap
     hm = np.zeros(
       (num_classes, self.opt.output_h, self.opt.output_w), dtype=np.float32)
     wh = np.zeros((self.max_objs, 2), dtype=np.float32)
@@ -102,6 +103,8 @@ class DddDataset(data.Dataset):
       if h > 0 and w > 0:
         radius = gaussian_radius((h, w))
         radius = max(0, int(radius))
+
+        # 中心点坐标
         ct = np.array(
           [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2], dtype=np.float32)
         ct_int = ct.astype(np.int32)
@@ -119,6 +122,8 @@ class DddDataset(data.Dataset):
         draw_gaussian(hm[cls_id], ct, radius)
 
         wh[k] = 1. * w, 1. * h
+
+        # gt_det:[ctx , cty , 八个值 , depth , dimx , dimy , dimz , cls_id]
         gt_det.append([ct[0], ct[1], 1] + \
                       self._alpha_to_8(self._convert_alpha(ann['alpha'])) + \
                       [ann['depth']] + (np.array(ann['dim']) / 1).tolist() + [cls_id])

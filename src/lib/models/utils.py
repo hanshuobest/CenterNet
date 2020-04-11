@@ -27,6 +27,7 @@ def _gather_feat(feat, ind, mask=None):
 # ind:  batchsize x k
 def _transpose_and_gather_feat(feat, ind):
     feat = feat.permute(0, 2, 3, 1).contiguous()
+    
     feat = feat.view(feat.size(0), -1, feat.size(3))
     # feat: batchsize x (-1) x 2
     # ind:  batchsize x k

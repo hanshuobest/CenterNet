@@ -103,6 +103,7 @@ def crop(img, center, scale, output_size, rot=0):
     return dst_img
 
 
+# https://zhuanlan.zhihu.com/p/96856635?utm_source=wechat_session&utm_medium=social&utm_oi=542065217631203328
 def gaussian_radius(det_size, min_overlap=0.7):
   height, width = det_size
 
@@ -134,7 +135,12 @@ def gaussian2D(shape, sigma=1):
     h[h < np.finfo(h.dtype).eps * h.max()] = 0
     return h
 
+
 def draw_umich_gaussian(heatmap, center, radius, k=1):
+  '''
+  画出我们想要的heatmap
+  center:bounding box的center
+  '''
   diameter = 2 * radius + 1
   gaussian = gaussian2D((diameter, diameter), sigma=diameter / 6)
   

@@ -6,15 +6,27 @@ import numpy as np
 import cv2
 
 def compute_box_3d(dim, location, rotation_y):
-  # brief: 计算3dbox的八个点坐标
-  # dim: 3
-  # location: 3
-  # rotation_y: 绕y轴旋转角度
-  # return: 8 x 3
+  '''
+  dim：三维尺度信息
+  location：3dbox中心点坐标
+  rotation_y：绕y轴的旋转角度（相机的y轴）
+  return：3dbox的八个角点坐标
+  '''
   c, s = np.cos(rotation_y), np.sin(rotation_y)
   # 绕y轴旋转产生的旋转矩阵
   R = np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]], dtype=np.float32)
   l, w, h = dim[2], dim[1], dim[0]
+
+
+  #        p3        p0
+  #        ***********
+  #       *         **
+  #    p2**********p1*
+  #      * * p7    * *p4
+  #      *         **
+  #    p6**********p5
+
+  # 右手坐标系，大拇指指向x正轴，食指指向z正轴，中指指向y正轴，坐标原点在3dbox最上面的中心点
 
   # 3D box的八个顶点坐标
   x_corners = [l/2, l/2, -l/2, -l/2, l/2, l/2, -l/2, -l/2]
@@ -23,8 +35,10 @@ def compute_box_3d(dim, location, rotation_y):
 
   # corners shape: 3 x 8
   corners = np.array([x_corners, y_corners, z_corners], dtype=np.float32)
+  # shape: 3 x 8
   corners_3d = np.dot(R, corners) 
   corners_3d = corners_3d + np.array(location, dtype=np.float32).reshape(3, 1)
+  # shape: 8 x 3
   return corners_3d.transpose(1, 0)
 
 def project_to_image(pts_3d, P):
@@ -74,6 +88,8 @@ def unproject_2d_to_3d(pt_2d, depth, P):
   # depth: 1
   # P: 3 x 4
   # return: 3
+
+  # z表示在相机坐标系下的z值
   z = depth - P[2, 3]
   x = (pt_2d[0] * depth - P[0, 3] - P[0, 2] * z) / P[0, 0]
   y = (pt_2d[1] * depth - P[1, 3] - P[1, 2] * z) / P[1, 1]
@@ -102,6 +118,8 @@ def rot_y2alpha(rot_y, x, cx, fx):
     x : Object center x to the camera center (x-W/2), in pixels
     rotation_y : Rotation ry around Y-axis in camera coordinates [-pi..pi]
     """
+
+    # 这里 x - cx是因为真实的成像平面是在相机中心后面，上面链接的图其实是为了展示方便
     alpha = rot_y - np.arctan2(x - cx, fx)
     if alpha > np.pi:
       alpha -= 2 * np.pi
