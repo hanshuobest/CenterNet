@@ -10,10 +10,27 @@ def _sigmoid(x):
   return y
 
 def _gather_feat(feat, ind, mask=None):
+    '''
+    3ddd feat:torch.Size([1, 30720, 1])
+    3ddd ind :torch.Size([1, 50])
+    '''
     dim  = feat.size(2)
 
+    # eg:
+    # x = torch.Tensor([[1], [2], [3]])
+    # y = x.expand(3 , 4)
+    # y = tensor([[1., 1., 1., 1.],
+    #    [2., 2., 2., 2.],
+    #    [3., 3., 3., 3.]])
     # ind shape: batchsize x K x dim
     ind  = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim)
+
+    # gather usage:
+    # eg:
+    #   a = Torch.tensor([[1 , 2] , [3 , 4]])
+    #   b = torch.gather(a , 1 , torch.LongTensor([[1,0],[1,0]]))
+    #   b = Torch.tensor([[2 , 1] , [4 , 3]])
+    # gather返回的tensor shape和ind相等
     feat = feat.gather(1, ind)
     if mask is not None:
         mask = mask.unsqueeze(2).expand_as(feat)

@@ -28,8 +28,9 @@ def ddd_post_process_2d(dets, c, s, opt):
     include_wh = dets.shape[2] > 16
     for i in range(dets.shape[0]):
         top_preds = {}
-
+        
         # opt.output_w, opt.output_h 下采样后的图像宽度和高度
+        # dets[i , : , :2] shape: (100 , 2)
         dets[i, :, :2] = transform_preds(
             dets[i, :, 0:2], c[i], s[i], (opt.output_w, opt.output_h))
         classes = dets[i, :, -1]
@@ -47,7 +48,7 @@ def ddd_post_process_2d(dets, c, s, opt):
                     transform_preds(
                         dets[i, inds, 15:17], c[i], s[i], (opt.output_w, opt.output_h))
                     .astype(np.float32)], axis=1)
-
+    
         ret.append(top_preds)
     return ret
 

@@ -179,6 +179,13 @@ class L1Loss(nn.Module):
     super(L1Loss, self).__init__()
   
   def forward(self, output, mask, ind, target):
+    '''
+    output:torch.Size([1, 1, 96, 320])
+    mask  :torch.Size([1, 50])
+    ind   :torch.Size([1, 50])
+    target:torch.Size([1, 50, 1])
+    '''
+    import pdb; pdb.set_trace()
     pred = _transpose_and_gather_feat(output, ind)
     mask = mask.unsqueeze(2).expand_as(pred).float()
     loss = F.l1_loss(pred * mask, target * mask, reduction='elementwise_mean')

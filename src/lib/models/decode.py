@@ -431,8 +431,14 @@ def ddd_decode(heat, rot, depth, dim, wh=None, reg=None, K=40):
     batch, cat, height, width = heat.size()
     # heat = torch.sigmoid(heat)
     # perform nms on heatmaps
+    # torch.Size([1 , 3 , 96 , 320])
     heat = _nms(heat)
-      
+
+    # scores: torch.Size([1 , 100])
+    # inds:   torch.Size([1 , 100])  
+    # cls:    torch.Size([1 , 100])
+    # ys:     torch.Size([1 , 100])
+    # xs:     torch.Size([1 , 100])
     scores, inds, clses, ys, xs = _topk(heat, K=K)
     if reg is not None:
       reg = _transpose_and_gather_feat(reg, inds)
@@ -442,7 +448,9 @@ def ddd_decode(heat, rot, depth, dim, wh=None, reg=None, K=40):
     else:
       xs = xs.view(batch, K, 1) + 0.5
       ys = ys.view(batch, K, 1) + 0.5
-      
+    
+    # rot:  torch.Size([1, 100, 8])
+    # inds: torch.Size([1, 100])
     rot = _transpose_and_gather_feat(rot, inds)
     rot = rot.view(batch, K, 8)
     depth = _transpose_and_gather_feat(depth, inds)

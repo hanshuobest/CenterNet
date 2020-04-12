@@ -44,11 +44,20 @@ class DddLoss(torch.nn.Module):
           batch['ind'].detach().cpu().numpy(), 
           opt.output_w, opt.output_h)).to(opt.device)
       
+      import pdb; pdb.set_trace()
+      # opt.num_stacks:1
+      # L2损失
       hm_loss += self.crit(output['hm'], batch['hm']) / opt.num_stacks
       if opt.dep_weight > 0:
+
+        # output['dep']:torch.Size([1, 1, 96, 320])
+        # batch['reg_mask']:torch.Size([1, 50])
+        # batch['ind']:torch.Size([1, 50])
+        # batch['dep']:torch.Size([1, 50, 1])
         dep_loss += self.crit_reg(output['dep'], batch['reg_mask'],
                                   batch['ind'], batch['dep']) / opt.num_stacks
       if opt.dim_weight > 0:
+        # 定义的L1损失函数
         dim_loss += self.crit_reg(output['dim'], batch['reg_mask'],
                                   batch['ind'], batch['dim']) / opt.num_stacks
       if opt.rot_weight > 0:

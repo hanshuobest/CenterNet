@@ -7,6 +7,7 @@ import numpy as np
 from progress.bar import Bar
 import time
 import torch
+import pdb
 
 
 from models.decode import ddd_decode
@@ -62,6 +63,7 @@ class DddDetector(BaseDetector):
     with torch.no_grad():
       torch.cuda.synchronize()
 
+      # 字典
       output = self.model(images)[-1]
       
       # heatmap shape: batchsize x 3 x 96 x 320
@@ -76,7 +78,7 @@ class DddDetector(BaseDetector):
 
       # rot shape: batchsize x 8 x 96 x 320
       # dim shape: batchsize x 3 x 96 x 320
-      # dets shape: batchsize x K x 18
+      # dets shape: batchsize x K x 18（torch.Tensor）
       dets = ddd_decode(output['hm'], output['rot'], output['dep'],
                           output['dim'], wh=wh, reg=reg, K=self.opt.K)
     if return_time:

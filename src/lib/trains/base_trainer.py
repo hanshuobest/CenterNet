@@ -16,6 +16,9 @@ class ModelWithLoss(torch.nn.Module):
     self.loss = loss
   
   def forward(self, batch):
+    '''
+    batch:是一个字典
+    '''
     outputs = self.model(batch['input'])
     loss, loss_stats = self.loss(outputs, batch)
     return outputs[-1], loss, loss_stats
