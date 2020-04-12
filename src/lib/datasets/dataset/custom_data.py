@@ -114,13 +114,14 @@ class CustomData(data.Dataset):
 
     def save_results(self, results, save_dir):
         json.dump(self.convert_eval_format(results),
-                  open('{}/results.json'.format(save_dir), 'w'))
+                  open('{}/results.json'.format(save_dir), 'w') , indent=2 , ensure_ascii=False)
 
     def run_eval(self, results, save_dir):
+        self.save_results(results, save_dir)
         # result_json = os.path.join(save_dir, "results.json")
         # detections  = self.convert_eval_format(results)
-        # json.dump(detections, open(result_json, "w"))
-        self.save_results(results, save_dir)
+        # json.dump(detections, open(result_json, "w") , indent=2 , ensure_ascii=False)
+
         coco_dets = self.coco.loadRes('{}/results.json'.format(save_dir))
         coco_eval = COCOeval(self.coco, coco_dets, "bbox")
         coco_eval.evaluate()
