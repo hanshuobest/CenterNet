@@ -1,5 +1,7 @@
-#### 检测
-python3 demo.py ctdet --demo ../images/19064748793_bb942deea1_k.jpg --load_model ../models/ctdet_coco_dla_2x.pth
+#### ctdet检测
+python3 demo.py ctdet --dataset coco --demo ../images/19064748793_bb942deea1_k.jpg --load_model ../models/ctdet_coco_dla_2x.pth
+
+> 如果是自定义数据集修改--dataset custom_data，opts.py中init函数修改dataset为custom_data
 ---
 
 #### 检测3d box
