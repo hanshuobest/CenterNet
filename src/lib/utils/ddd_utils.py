@@ -7,10 +7,10 @@ import cv2
 
 def compute_box_3d(dim, location, rotation_y):
   '''
-  dim：三维尺度信息
-  location：3dbox中心点坐标
+  dim：       三维尺度信息
+  location：  3dbox中心点坐标
   rotation_y：绕y轴的旋转角度（相机的y轴）
-  return：3dbox的八个角点坐标
+  return：    3dbox的八个角点坐标
   '''
   c, s = np.cos(rotation_y), np.sin(rotation_y)
   # 绕y轴旋转产生的旋转矩阵

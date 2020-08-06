@@ -2,9 +2,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import _init_paths
 from utils.ddd_utils import draw_box_3d, unproject_2d_to_3d
 from utils.ddd_utils import compute_box_3d, project_to_image, alpha2rot_y
-import _init_paths
+
 import os
 import pickle
 import json
@@ -153,8 +154,6 @@ for SPLIT in SPLITS:
 
         print("# images: ", len(ret['images']))
         print("# annotations: ", len(ret['annotations']))
-        # import pdb; pdb.set_trace()
-        # out_path = '{}annotations/kitti_{}_{}.json'.format(DATA_PATH, SPLIT, split)
 
         out_path = '{}annotations'.format(DATA_PATH)
         print('out_path: ', out_path)
